@@ -7,6 +7,12 @@ using WebApi.Helpers;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
+using WebApi.Contracts;
+using WebApi.Repository;
+using WebApi.Service.Contracts;
+using WebApi.Service;
+using WebApi.Extentions;
+
 _.__();
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +31,9 @@ var builder = WebApplication.CreateBuilder(args);
   });
 
   var services = builder.Services;
-  services.AddControllers();
+    builder.Services.AddScoped<IRepositoryManager,RepositoryManager>();
+    builder.Services.AddScoped<IServiceManager, ServiceManager>();
+    services.AddControllers();
   services.AddSqlite<DataContext>("DataSource=webApi.db");
 
   services.AddDataProtection().UseCryptographicAlgorithms(
@@ -49,6 +57,7 @@ using (var scope = app.Services.CreateScope())
 {
   app.MapControllers();
 }
+app.ConfigureExceptionHandler();
 
 app.Run();
 

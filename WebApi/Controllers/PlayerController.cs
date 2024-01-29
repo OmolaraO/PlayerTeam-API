@@ -9,43 +9,46 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebApi.Helpers;
 using WebApi.Entities;
+using WebApi.Service.Contracts;
+using WebApi.DTOs.Player;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
 public class PlayerController : ControllerBase
 {
-  private readonly DataContext Context;
+    private readonly IServiceManager _serviceManager;
 
-  public PlayerController(DataContext context)
+  public PlayerController(IServiceManager serviceManager)
   {
-    Context = context;
+   _serviceManager = serviceManager;
   }
 
   [HttpGet]
   public async Task<ActionResult<IEnumerable<Player>>> GetAll()
   {
-    await Task.Run(() => Context.Players.FirstOrDefault( x => x.Id == 1));
+    //await Task.Run(() => Context.Players.FirstOrDefault( x => x.Id == 1));
     throw new NotImplementedException();
   }
 
   [HttpPost]
-  public async Task<ActionResult<Player>> PostPlayer()
+  public async Task<ActionResult<Player>> PostPlayer(PlayerForCreationDto request)
   {
-    await Task.Run(() => Context.Players.FirstOrDefault(x => x.Id == 2));
-    throw new NotImplementedException();
+        var response = await _serviceManager.PlayerService.CreatePlayerAsync(request, false);
+        return Ok(response);
   }
 
-  [HttpPut("{id}")]
-  public async Task<IActionResult> PutPlayer(int id, Player player)
+  [HttpPut("{playerId:int}")]
+  public async Task<IActionResult> PutPlayer(int playerId, PlayerForUpdateDto request)
   {
-    await Task.Run(() => Context.Players.FirstOrDefault(x => x.Id == 3));
-    throw new NotImplementedException();
+        var response = await _serviceManager.PlayerService.UpdatePlayerAsync(playerId,request, false);
+        return Ok(response);
   }
-
-  [HttpDelete("{id}")]
-  public async Task<ActionResult<Player>> DeletePlayer(int id)
+  [Authorize]
+  [HttpDelete("{playerId}")]
+  public async Task<ActionResult<Player>> DeletePlayer([FromRoute]int playerId)
   {
-    await Task.Run(() => Context.Players.FirstOrDefault(x => x.Id == 4));
-    throw new NotImplementedException();
+        var response = await _serviceManager.PlayerService.DeletePlayerAsync(playerId, false);
+        return Ok(response);
   }
 }
